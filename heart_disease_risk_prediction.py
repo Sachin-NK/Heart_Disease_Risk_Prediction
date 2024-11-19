@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 from sklearn.model_selection import train_test_split
 import joblib
+from sklearn.model_selection import GridSearchCV
 
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
@@ -57,6 +58,11 @@ Y = df['target']
 
 X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.2, random_state=10 )
 
+# Scale the data 
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
 """Check Algorithms"""
 
 models = []
@@ -93,5 +99,25 @@ X_test_prediction = model.predict(X_test)
 test_data_accuracy = accuracy_score(X_test_prediction, Y_test)
 print('Accuracy on Test data:', test_data_accuracy)
 
+
+"""Hyperparameter Tuning"""
+param_grid = {
+    'C': [0.01, 0.1, 1, 10, 100],  # Test different levels of regularization
+    'solver': ['lbfgs', 'liblinear'],  # Test multiple solvers
+    'max_iter': [100, 500, 1000]  # Test different max iterations
+}
+grid = GridSearchCV(
+    LogisticRegression(),
+    param_grid,
+    cv=5,  # 5-fold cross-validation
+    scoring='accuracy',
+    verbose=2,  # To show progress during tuning
+    n_jobs=-1  # Use all available processors
+)
+grid.fit(X_train, Y_train)
+print("Best Parameters:", grid.best_params_)
+best_model = grid.best_estimator_
+
 """Save the model"""
 joblib.dump(model, 'heart_disease_model.pkl')  
+
