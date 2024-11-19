@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 from sklearn.model_selection import train_test_split
+import joblib
 
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
@@ -83,5 +84,14 @@ model = LogisticRegression()
 
 model.fit(X_train, Y_train)
 
+"""Evaluate the Model"""
 X_train_prediction = model.predict(X_train)
 training_data_accuracy = accuracy_score(X_train_prediction, Y_train)
+
+X_test_prediction = model.predict(X_test)
+
+test_data_accuracy = accuracy_score(X_test_prediction, Y_test)
+print('Accuracy on Test data:', test_data_accuracy)
+
+"""Save the model"""
+joblib.dump(model, 'heart_disease_model.pkl')  
